@@ -146,9 +146,9 @@ footer{
 
 <section class="kpis">
   <div class="kpi"><span>Total Showrooms</span><h2>8</h2></div>
-  <div class="kpi"><span>Total Schemes</span><h2>0</h2></div>
-  <div class="kpi"><span>Total Value</span><h2>₹ 0</h2></div>
-  <div class="kpi"><span>Top Performer</span><h2></h2></div>
+  <div class="kpi"><span>Total Schemes</span><h2>14</h2></div>
+  <div class="kpi"><span>Total Value</span><h2>₹ 282000</h2></div>
+  <div class="kpi"><span>Top Performer</span><h2>SLMSRM</h2></div>
 </section>
 
 <section class="fixtures" id="fixtures"></section>
@@ -160,13 +160,13 @@ footer{
 <script>
 const showroomData={
   CBESRD:{s:9,v:138000},
-  HOSBMR:{s:22,v:456000},
-  MDUNTR:{s:8,v:179000},
-  PYDKMR:{s:51,v:769000},
-  RMDSVS:{s:29,v:318000},
-  SLMSRM:{s:36,v:430000},
-  UDUDRD:{s:10,v:136000},
-  VELASL:{s:10,v:198000}
+  HOSBMR:{s:01,v:17000},
+  MDUNTR:{s:0,v:0},
+  PYDKMR:{s:04,v:129000},
+  RMDSVS:{s:0,v:0},
+  SLMSRM:{s:09,v:136000},
+  UDUDRD:{s:0,v:0},
+  VELASL:{s:0,v:0}
 };
 
 /* FIXTURE MAP – unchanged */
@@ -178,7 +178,7 @@ const fixturesData=[
 ];
 
 const fixtures=document.getElementById('fixtures');
-const leader='PYDKMR';
+const leader='SLMSRM';
 
 fixturesData.forEach(fix=>{
   const f=document.createElement('div');
@@ -210,6 +210,7 @@ setInterval(()=>{
 
 </body>
 </html>
+
 
 
 
