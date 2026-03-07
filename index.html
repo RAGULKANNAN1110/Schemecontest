@@ -1,243 +1,413 @@
 <!DOCTYPE html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FBL – Scheme Day Live Dashboard</title>
-</head>
+<meta charset="UTF-8">
+<title>FBL – Scheme Day Contest</title>
 
 <style>
-:root{
-  --gold:#d4af37;
-  --emerald:#2f7f6f;
-  --dark:#2b2b2b;
-}
-*{box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
+
 body{
-  margin:0;
-  background:linear-gradient(135deg,#fdfaf3,#efe6cf);
-  color:var(--dark);
+margin:0;
+font-family:Segoe UI;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
 }
 
-/* HEADER */
+:root{
+--gold:#D4AF37;
+--green:#2dd4bf;
+}
+
 header{
-  padding:26px 40px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-h1{margin:0;font-size:30px}
-header p{margin:6px 0 0;opacity:.7}
-.live{display:flex;align-items:center;gap:10px}
-.dot{
-  width:12px;height:12px;background:red;border-radius:50%;
-  animation:pulse 1.4s infinite;
-}
-@keyframes pulse{
-  0%{box-shadow:0 0 0 0 rgba(255,0,0,.5)}
-  70%{box-shadow:0 0 0 14px rgba(255,0,0,0)}
-}
-.clock{font-weight:600}
-
-/* KPI */
-.kpis{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:22px;
-  padding:10px 40px 36px;
-}
-.kpi{
-  background:rgba(255,255,255,.65);
-  backdrop-filter:blur(12px);
-  border-radius:18px;
-  padding:22px;
-  text-align:center;
-  box-shadow:0 10px 28px rgba(0,0,0,.08);
-}
-.kpi span{font-size:14px;opacity:.6}
-.kpi h2{margin:10px 0 0;color:var(--gold)}
-
-/* FIXTURES */
-.fixtures{
-  padding:10px 40px 50px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
-  gap:28px;
-}
-.fixture{
-  background:rgba(255,255,255,.55);
-  backdrop-filter:blur(14px);
-  border-radius:22px;
-  padding:18px;
-  box-shadow:0 16px 36px rgba(0,0,0,.08);
-  transition:.35s;
-}
-.fixture:hover{
-  transform:translateY(-6px);
-  box-shadow:0 22px 48px rgba(212,175,55,.35);
-  outline:1px solid rgba(212,175,55,.5);
-}
-.fixture h4{
-  text-align:center;
-  margin:0 0 16px;
-  color:var(--gold);
+text-align:center;
+padding:18px;
+border-bottom:2px solid var(--gold);
+position:relative;
 }
 
-.row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:rgba(255,255,255,.7);
-  padding:14px 16px;
-  border-radius:14px;
-  margin-bottom:12px;
-  transition:.3s;
-}
-.row:last-child{margin-bottom:0}
-.row:hover{
-  background:#fffdf6;
-  transform:scale(1.015);
-}
-.row.leader{
-  outline:2px solid var(--gold);
-  background:linear-gradient(135deg,#fff6db,#ffffff);
-  position:relative;
-}
-.row.leader::after{
-  content:'👑';
-  position:absolute;
-  right:14px;
-  top:-10px;
-  font-size:18px;
+h1{
+margin:0;
+color:var(--gold);
+font-size:36px;
 }
 
-.name{font-weight:600;letter-spacing:.6px}
-.meta{text-align:right;font-size:13px}
-.meta strong{
-  display:block;
-  font-size:16px;
-  color:var(--emerald);
+.subtitle{
+color:#ddd;
+font-size:14px;
 }
 
-footer{
-  text-align:center;
-  padding:18px;
-  font-size:12px;
-  opacity:.6;
+.clock{
+position:absolute;
+right:30px;
+top:18px;
+font-size:14px;
 }
 
-@media(max-width:768px){
-  header{flex-direction:column;gap:14px;text-align:center}
+.container{
+padding:20px 30px;
 }
+
+h2{
+color:var(--gold);
+margin-bottom:15px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+grid-auto-rows:190px;
+gap:16px;
+}
+
+.card{
+background:rgba(0,0,0,0.35);
+border-radius:12px;
+border:1px solid rgba(255,255,255,0.08);
+padding:14px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+}
+
+.card-3team{
+grid-row:span 2;
+display:flex;
+flex-direction:column;
+justify-content:center;
+}
+
+.team{
+position:relative;
+margin-bottom:8px;
+}
+
+.teamname{
+font-weight:bold;
+font-size:15px;
+}
+
+.stats{
+font-size:12px;
+color:#ccc;
+}
+
+.progress{
+height:7px;
+background:#444;
+border-radius:5px;
+margin-top:3px;
+overflow:hidden;
+}
+
+.bar{
+height:7px;
+background:var(--green);
+transition:1s;
+}
+
+.vs{
+text-align:center;
+font-size:12px;
+color:var(--gold);
+margin:4px 0;
+}
+
+.crown{
+position:absolute;
+right:-8px;
+top:-6px;
+font-size:18px;
+animation:crownGlow 2s infinite alternate;
+}
+
+@keyframes crownGlow{
+from{ text-shadow:0 0 6px gold;}
+to{ text-shadow:0 0 20px gold;}
+}
+
+.top-performer{
+margin-top:18px;
+padding:12px;
+background:rgba(0,0,0,0.35);
+border-radius:10px;
+text-align:center;
+font-size:18px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:12px;
+font-size:14px;
+}
+
+th,td{
+padding:8px;
+border-bottom:1px solid rgba(255,255,255,0.1);
+text-align:center;
+}
+
+th{
+color:var(--gold);
+}
+
+.rank1{
+background:rgba(212,175,55,0.25);
+}
+
+.scroll-btn{
+position:fixed;
+bottom:20px;
+right:25px;
+background:var(--gold);
+border:none;
+padding:12px 20px;
+border-radius:30px;
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 0 12px gold;
+}
+
+.footer{
+text-align:center;
+padding:15px;
+color:#ccc;
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
-  <div>
-    <h1>Scheme Day Contest</h1>
-    <p>Live Scheme Count & Value Update</p>
-  </div>
-  <div class="live">
-    <div class="dot"></div>
-    <div class="clock" id="clock"></div>
-  </div>
+
+<h1>FBL – Scheme Day Contest</h1>
+<div class="subtitle">Live Scheme Enrollment Scoreboard</div>
+
+<div class="clock">
+<div id="date"></div>
+<div id="time"></div>
+</div>
+
 </header>
 
-<section class="kpis">
-  <div class="kpi"><span>Total Showrooms</span><h2>8</h2></div>
-  <div class="kpi"><span>Total Schemes</span><h2>197</h2></div>
-  <div class="kpi"><span>Total Value</span><h2>₹ 2852000</h2></div>
-  <div class="kpi"><span>Top Performer</span><h2>PYDKMR</h2></div>
-</section>
+<div class="container">
 
-<section class="fixtures" id="fixtures"></section>
+<h2>Showroom Matchups</h2>
 
-<footer>
-  Premium Jewellery Scheme Tracking • Designed for Showroom Display
-</footer>
+<div class="grid" id="matchups"></div>
+
+<div class="top-performer">
+
+👑 Top Performer :
+<span id="leaderName"></span>
+<br>
+<span id="leaderStats"></span>
+
+</div>
+
+</div>
+
+<div class="container" id="leaderboardSection">
+
+<table>
+
+<thead>
+<tr>
+<th>Rank</th>
+<th>Showroom</th>
+<th>Target</th>
+<th>Achieved</th>
+<th>%</th>
+</tr>
+</thead>
+
+<tbody id="leaderboard"></tbody>
+
+</table>
+
+</div>
+
+<button class="scroll-btn" onclick="scrollLeaderboard()">
+View Leaderboard ↓
+</button>
+
+<div class="footer">
+Winning showroom from each matchup qualifies for Phase 2 Contest
+</div>
 
 <script>
 
-/* FIXTURE MAP – unchanged */
-const fixturesData=[
- ['ANRSAE','CBEXRD'],
- ['SLMSRM','MDUNTR'],
- ['ERDRKV','RMDSVS'],
- ['CBESRD','TRIBRD'],
- ['HOSBMR','CBEBOT'],
- ['PYDKMR','TRIBRD'],
- ['UDUDRD','VELASL','POLBST']
+const showroomData=[
+
+{name:"CBEXRD",target:500000,achieved:340000},
+{name:"ANRSAE",target:500000,achieved:410000},
+
+{name:"MDUNTR",target:500000,achieved:220000},
+{name:"SLMSRM",target:500000,achieved:280000},
+
+{name:"ERDRKV",target:400000,achieved:210000},
+{name:"RMDSVS",target:400000,achieved:260000},
+
+{name:"UDUDRD",target:400000,achieved:190000},
+{name:"VELASL",target:400000,achieved:210000},
+{name:"POLLACHI",target:400000,achieved:260000},
+
+{name:"CBESRD",target:400000,achieved:300000},
+{name:"TRIBRD",target:400000,achieved:180000},
+
+{name:"HOSBMR",target:500000,achieved:360000},
+{name:"CBEBOT",target:500000,achieved:320000},
+
+{name:"PYDKMR",target:500000,achieved:410000},
+{name:"MDUANR",target:500000,achieved:260000}
+
 ];
 
-const fixtures=document.getElementById('fixtures');
-const leader='PYDKMR';
+const matchups=[
 
-fixturesData.forEach(fix=>{
-  const f=document.createElement('div');
-  f.className='fixture';
-  f.innerHTML='<h4>Fixture</h4>';
+["CBEXRD","ANRSAE"],
+["MDUNTR","SLMSRM"],
+["ERDRKV","RMDSVS"],
+["UDUDRD","VELASL","POLLACHI"],
+["CBESRD","TRIBRD"],
+["HOSBMR","CBEBOT"],
+["PYDKMR","MDUANR"]
 
-  fix
-    .map(k=>({k,...showroomData[k]}))
-    .sort((a,b)=>b.v-a.v)
-    .forEach(d=>{
-      f.innerHTML+=`
-        <div class="row ${d.k===leader?'leader':''}">
-          <div class="name">${d.k}</div>
-          <div class="meta">
-            Schemes : ${d.s}
-            <strong>₹ ${d.v.toLocaleString('en-IN')}</strong>
-          </div>
-        </div>`;
-    });
+];
 
-  fixtures.appendChild(f);
-});
+function getTeam(name){
+return showroomData.find(t=>t.name===name)
+}
+
+function percent(t){
+return ((t.achieved/t.target)*100).toFixed(1)
+}
+
+function money(n){
+return "₹"+n.toLocaleString("en-IN")
+}
+
+function findLeader(){
+
+return [...showroomData].sort((a,b)=>
+(b.achieved/b.target)-(a.achieved/a.target)
+)[0]
+
+}
+
+function renderMatchups(){
+
+const leader=findLeader()
+const container=document.getElementById("matchups")
+
+matchups.forEach(match=>{
+
+let cardClass = match.length==3 ? "card card-3team":"card"
+
+let html=`<div class="${cardClass}">`
+
+match.forEach((team,index)=>{
+
+const t=getTeam(team)
+const isLeader=(t.name===leader.name)
+
+html+=`
+
+<div class="team">
+
+${isLeader?'<span class="crown">👑</span>':''}
+
+<div class="teamname">${t.name}</div>
+
+<div class="stats">
+Target: ${money(t.target)}<br>
+Achieved: ${money(t.achieved)}<br>
+${percent(t)}%
+</div>
+
+<div class="progress">
+<div class="bar" style="width:${percent(t)}%"></div>
+</div>
+
+</div>
+
+`
+
+if(index<match.length-1)
+html+=`<div class="vs">VS</div>`
+
+})
+
+html+=`</div>`
+
+container.innerHTML+=html
+
+})
+
+}
+
+function leaderboard(){
+
+let data=[...showroomData]
+
+data.forEach(t=>t.p=(t.achieved/t.target)*100)
+
+data.sort((a,b)=>b.p-a.p)
+
+const table=document.getElementById("leaderboard")
+
+data.forEach((t,i)=>{
+
+let row=document.createElement("tr")
+
+if(i==0)row.classList.add("rank1")
+
+row.innerHTML=`
+
+<td>${i+1}</td>
+<td>${t.name}</td>
+<td>${money(t.target)}</td>
+<td>${money(t.achieved)}</td>
+<td>${t.p.toFixed(1)}%</td>
+
+`
+
+table.appendChild(row)
+
+})
+
+const leader=data[0]
+
+document.getElementById("leaderName").innerText=leader.name
+document.getElementById("leaderStats").innerText=
+leader.p.toFixed(1)+"% | "+money(leader.achieved)
+
+}
+
+function clock(){
 
 setInterval(()=>{
-  document.getElementById('clock').innerText=
-    new Date().toLocaleTimeString();
-},1000);
+
+let now=new Date()
+
+document.getElementById("time").innerText=now.toLocaleTimeString()
+document.getElementById("date").innerText=now.toDateString()
+
+},1000)
+
+}
+
+function scrollLeaderboard(){
+document.getElementById("leaderboardSection")
+.scrollIntoView({behavior:"smooth"})
+}
+
+renderMatchups()
+leaderboard()
+clock()
+
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
