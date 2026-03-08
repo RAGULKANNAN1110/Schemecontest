@@ -323,13 +323,13 @@ ${isLeader?'<span class="crown">👑</span>':''}
 <div class="stats">
 Target: ${money(t.target)}<br>
 Achieved: ${money(t.achieved)}<br>
-${Percenatge(t)%}
+
 </div>
 
 <div class="progress">
 <div class="bar" style="width:${percent(t)}%"></div>
 </div>
-
+${percent(t)}%
 </div>
 
 `
@@ -411,6 +411,7 @@ clock()
 
 </body>
 </html>
+
 
 
 
