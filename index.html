@@ -5,7 +5,6 @@
 <title>FBL – Scheme Day Contest</title>
 
 <style>
-
 body{
 margin:0;
 font-family:Segoe UI;
@@ -54,8 +53,7 @@ margin-bottom:15px;
 
 .grid{
 display:grid;
-grid-template-columns:repeat(4,1fr);
-grid-auto-rows:190px;
+grid-template-columns:repeat(2,1fr);
 gap:16px;
 }
 
@@ -69,13 +67,6 @@ flex-direction:column;
 justify-content:center;
 }
 
-.card-3team{
-grid-row:span 2;
-display:flex;
-flex-direction:column;
-justify-content:center;
-}
-
 .team{
 position:relative;
 margin-bottom:8px;
@@ -83,11 +74,11 @@ margin-bottom:8px;
 
 .teamname{
 font-weight:bold;
-font-size:15px;
+font-size:16px;
 }
 
 .stats{
-font-size:12px;
+font-size:13px;
 color:#ccc;
 }
 
@@ -102,14 +93,13 @@ overflow:hidden;
 .bar{
 height:7px;
 background:var(--green);
-transition:1s;
 }
 
 .vs{
 text-align:center;
 font-size:12px;
 color:var(--gold);
-margin:4px 0;
+margin:6px 0;
 }
 
 .crown{
@@ -173,14 +163,12 @@ text-align:center;
 padding:15px;
 color:#ccc;
 }
-
 </style>
 </head>
 
 <body>
 
 <header>
-
 <h1>FBL – Scheme Day Contest</h1>
 <div class="subtitle">Live Scheme Enrollment Scoreboard</div>
 
@@ -188,22 +176,17 @@ color:#ccc;
 <div id="date"></div>
 <div id="time"></div>
 </div>
-
 </header>
 
 <div class="container">
 
 <h2>Showroom Matchups</h2>
-
 <div class="grid" id="matchups"></div>
 
 <div class="top-performer">
-
 👑 Top Performer :
-<span id="leaderName"></span>
-<br>
+<span id="leaderName"></span><br>
 <span id="leaderStats"></span>
-
 </div>
 
 </div>
@@ -211,7 +194,6 @@ color:#ccc;
 <div class="container" id="leaderboardSection">
 
 <table>
-
 <thead>
 <tr>
 <th>Rank</th>
@@ -238,8 +220,8 @@ Winning showroom from each matchup qualifies for Phase 2 Contest
 
 <script>
 
+// ALL TEAMS → TARGET FIXED 5,00,000
 const showroomData=[
-
 {name:"HOSBMR",target:500000,achieved:0},
 {name:"PYDKMR",target:500000,achieved:0},
 
@@ -249,24 +231,16 @@ const showroomData=[
 {name:"RMDSVS",target:500000,achieved:0},
 {name:"TRIBRD",target:500000,achieved:0},
 
-{name:"CBESRD",target:400000,achieved:0},
-{name:"TRIBRD",target:400000,achieved:0},
-
 {name:"SLMSRM",target:500000,achieved:25000},
 {name:"ANRSAE",target:500000,achieved:25000},
-
 ];
 
+// MATCHUPS FROM IMAGE
 const matchups=[
-
-["CBEXRD","ANRSAE"],
-["MDUNTR","SLMSRM"],
-["ERDRKV","RMDSVS"],
-["UDUDRD","VELASL","POLBST"],
-["CBESRD","TRIBRD"],
-["HOSBMR","CBEBOT"],
-["PYDKMR","MDUANR"]
-
+["HOSBMR","PYDKMR"],
+["POLBST","VELASL"],
+["RMDSVS","TRIBRD"],
+["SLMSRM","ANRSAE"]
 ];
 
 function getTeam(name){
@@ -282,11 +256,9 @@ return "₹"+n.toLocaleString("en-IN")
 }
 
 function findLeader(){
-
 return [...showroomData].sort((a,b)=>
 (b.achieved/b.target)-(a.achieved/a.target)
 )[0]
-
 }
 
 function renderMatchups(){
@@ -296,9 +268,7 @@ const container=document.getElementById("matchups")
 
 matchups.forEach(match=>{
 
-let cardClass = match.length==3 ? "card card-3team":"card"
-
-let html=`<div class="${cardClass}">`
+let html=`<div class="card">`
 
 match.forEach((team,index)=>{
 
@@ -306,17 +276,13 @@ const t=getTeam(team)
 const isLeader=(t.name===leader.name)
 
 html+=`
-
 <div class="team">
-
 ${isLeader?'<span class="crown">👑</span>':''}
-
 <div class="teamname">${t.name}</div>
 
 <div class="stats">
 Target: ${money(t.target)}<br>
-Achieved: ${money(t.achieved)}<br>
-
+Achieved: ${money(t.achieved)}
 </div>
 
 <div class="progress">
@@ -324,7 +290,6 @@ Achieved: ${money(t.achieved)}<br>
 </div>
 ${percent(t)}%
 </div>
-
 `
 
 if(index<match.length-1)
@@ -333,19 +298,15 @@ html+=`<div class="vs">VS</div>`
 })
 
 html+=`</div>`
-
 container.innerHTML+=html
 
 })
-
 }
 
 function leaderboard(){
 
 let data=[...showroomData]
-
 data.forEach(t=>t.p=(t.achieved/t.target)*100)
-
 data.sort((a,b)=>b.p-a.p)
 
 const table=document.getElementById("leaderboard")
@@ -353,17 +314,14 @@ const table=document.getElementById("leaderboard")
 data.forEach((t,i)=>{
 
 let row=document.createElement("tr")
-
 if(i==0)row.classList.add("rank1")
 
 row.innerHTML=`
-
 <td>${i+1}</td>
 <td>${t.name}</td>
 <td>${money(t.target)}</td>
 <td>${money(t.achieved)}</td>
 <td>${t.p.toFixed(1)}%</td>
-
 `
 
 table.appendChild(row)
@@ -375,20 +333,14 @@ const leader=data[0]
 document.getElementById("leaderName").innerText=leader.name
 document.getElementById("leaderStats").innerText=
 leader.p.toFixed(1)+"% | "+money(leader.achieved)
-
 }
 
 function clock(){
-
 setInterval(()=>{
-
 let now=new Date()
-
 document.getElementById("time").innerText=now.toLocaleTimeString()
 document.getElementById("date").innerText=now.toDateString()
-
 },1000)
-
 }
 
 function scrollLeaderboard(){
@@ -404,23 +356,3 @@ clock()
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
