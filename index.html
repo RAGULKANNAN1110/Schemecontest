@@ -1,358 +1,861 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>FBL – Scheme Day Contest</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jewel One · DigiGold Admin — Data Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Cinzel:wght@400;500;600&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-body{
-margin:0;
-font-family:Segoe UI;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:white;
+:root {
+  --brand-terra:  #8B4A1F;
+  --brand-mid:    #A0552A;
+  --brand-dark:   #3D1A08;
+  --brand-deep:   #1E0C03;
+  --gold:         #C9A84C;
+  --gold-light:   #E8C97A;
+  --gold-pale:    #F5E4BC;
+  --gold-dim:     rgba(201,168,76,0.25);
+  --cream:        #F7EDD8;
+  --cream-dim:    #C8B49A;
+  --cream-faint:  rgba(247,237,216,0.12);
+  --glass-heavy:  rgba(20,8,2,0.72);
+  --glass-mid:    rgba(30,12,3,0.58);
+  --glass-light:  rgba(42,16,4,0.40);
+  --border:       rgba(201,168,76,0.18);
+  --border-bright:rgba(201,168,76,0.40);
+  --green:        #8DC96B;
+  --red:          #C35050;
+  --ff-display:   'Cinzel', serif;
+  --ff-serif:     'Cormorant Garamond', serif;
+  --ff-sans:      'Raleway', sans-serif;
 }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--ff-sans);font-weight:300;background:var(--brand-deep);color:var(--cream);min-height:100vh;overflow-x:hidden;}
+.bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;}
+.bg-canvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 120% 80% at 20% -10%,#6B2E0D 0%,transparent 55%),radial-gradient(ellipse 80% 90% at 85% 110%,#5C2009 0%,transparent 50%),linear-gradient(160deg,#1A0805 0%,#2C1006 40%,#1A0805 100%);}
+.bg-grain{position:fixed;inset:0;z-index:1;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23g)' opacity='0.055'/%3E%3C/svg%3E");pointer-events:none;}
+.bg-vignette{position:fixed;inset:0;z-index:2;background:radial-gradient(ellipse 100% 100% at 50% 50%,transparent 40%,rgba(10,3,0,0.6) 100%);pointer-events:none;}
 
-:root{
---gold:#D4AF37;
---green:#2dd4bf;
-}
+/* SHELL */
+.shell{position:relative;z-index:10;display:flex;min-height:100vh;}
 
-header{
-text-align:center;
-padding:18px;
-border-bottom:2px solid var(--gold);
-position:relative;
-}
+/* SIDEBAR */
+.sidebar{width:230px;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;background:var(--glass-heavy);border-right:1px solid var(--border);backdrop-filter:blur(20px);display:flex;flex-direction:column;z-index:100;}
+.logo-wrap{padding:28px 20px 22px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;align-items:center;position:relative;}
+.logo-wrap::before,.logo-wrap::after{content:'';position:absolute;width:22px;height:22px;border-color:var(--gold);border-style:solid;}
+.logo-wrap::before{top:12px;left:12px;border-width:1px 0 0 1px;}
+.logo-wrap::after{top:12px;right:12px;border-width:1px 1px 0 0;}
+.logo-emblem{width:78px;height:78px;position:relative;margin-bottom:12px;display:flex;align-items:center;justify-content:center;}
+.logo-emblem::before{content:'';position:absolute;inset:0;border-radius:50%;border:1px solid rgba(201,168,76,0.35);box-shadow:0 0 22px rgba(201,168,76,0.1),inset 0 0 18px rgba(139,74,31,0.2);}
+.logo-emblem::after{content:'';position:absolute;inset:6px;border-radius:50%;border:1px solid rgba(201,168,76,0.18);}
+.logo-svg-wrap{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#8B4A1F 0%,#3D1A08 55%,#1E0C03 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.logo-name{font-family:var(--ff-display);font-size:13.5px;font-weight:500;letter-spacing:4px;color:var(--cream);text-align:center;}
+.logo-tagline{font-family:var(--ff-serif);font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-top:4px;text-align:center;font-style:italic;}
+.logo-rule{width:50px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:10px auto 0;}
+.nav{flex:1;padding:20px 0;overflow-y:auto;}
+.nav-group-label{font-family:var(--ff-display);font-size:7.5px;letter-spacing:3px;color:rgba(201,168,76,0.4);padding:12px 22px 6px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 22px;font-family:var(--ff-sans);font-size:12px;font-weight:300;color:var(--cream-dim);cursor:pointer;transition:all 0.25s;position:relative;letter-spacing:0.8px;text-decoration:none;}
+.nav-item:hover{color:var(--cream);background:var(--cream-faint);}
+.nav-item.active{color:var(--gold-light);background:linear-gradient(90deg,rgba(201,168,76,0.08),transparent);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:22px;background:linear-gradient(180deg,transparent,var(--gold),transparent);border-radius:0 2px 2px 0;}
+.nav-icon{width:14px;height:14px;opacity:0.7;flex-shrink:0;}
+.nav-item.active .nav-icon{opacity:1;}
+.sidebar-foot{padding:16px 20px;border-top:1px solid var(--border);}
+.user-row{display:flex;align-items:center;gap:10px;}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--brand-mid),var(--brand-dark));border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--ff-serif);font-size:14px;font-style:italic;color:var(--gold-light);}
+.user-name{font-size:11.5px;font-weight:400;color:var(--cream);letter-spacing:0.5px;}
+.user-emp{font-size:9px;color:var(--cream-dim);letter-spacing:1px;margin-top:2px;}
 
-h1{
-margin:0;
-color:var(--gold);
-font-size:36px;
-}
+/* MAIN */
+.main-wrap{margin-left:230px;flex:1;padding:30px 36px 50px;min-height:100vh;}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:26px;}
+.page-eyebrow{font-family:var(--ff-display);font-size:8.5px;letter-spacing:4px;color:var(--gold);margin-bottom:8px;text-transform:uppercase;}
+.page-title{font-family:var(--ff-serif);font-size:32px;font-weight:500;color:var(--cream);letter-spacing:1px;line-height:1;display:flex;align-items:center;gap:14px;}
+.title-ornament{display:inline-flex;align-items:center;gap:5px;}
+.orn-line{width:28px;height:1px;background:var(--gold);}
+.orn-diamond{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);flex-shrink:0;}
+.page-sub{font-size:11px;font-weight:300;color:var(--cream-dim);margin-top:6px;letter-spacing:1px;}
+.head-controls{display:flex;align-items:center;gap:10px;}
 
-.subtitle{
-color:#ddd;
-font-size:14px;
-}
+/* TABS */
+.tab-row{display:flex;align-items:center;gap:4px;background:var(--glass-heavy);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content;margin-bottom:24px;backdrop-filter:blur(12px);}
+.tab-btn{padding:8px 28px;border-radius:7px;font-family:var(--ff-display);font-size:9px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;transition:all 0.22s;color:var(--cream-dim);border:none;background:transparent;}
+.tab-btn.active{background:linear-gradient(135deg,var(--brand-mid),var(--brand-terra));color:var(--gold-light);border:1px solid var(--border-bright);box-shadow:0 2px 12px rgba(201,168,76,0.12);}
 
-.clock{
-position:absolute;
-right:30px;
-top:18px;
-font-size:14px;
-}
+/* TAB CONTENT */
+.tab-content{display:none;}
+.tab-content.active{display:block;}
 
-.container{
-padding:20px 30px;
-}
+/* PANEL */
+.panel{background:var(--glass-mid);border:1px solid var(--border);border-radius:14px;overflow:hidden;backdrop-filter:blur(12px);animation:fadeUp 0.55s ease both;margin-bottom:20px;}
+.panel-top{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:relative;}
+.panel-top::after{content:'';position:absolute;bottom:-1px;left:22px;right:22px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
+.panel-title{font-family:var(--ff-serif);font-size:16px;font-weight:500;color:var(--cream);letter-spacing:0.5px;}
+.panel-badge{font-family:var(--ff-display);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid var(--border);border-radius:20px;padding:3px 12px;}
+.panel-body{padding:22px;}
 
-h2{
-color:var(--gold);
-margin-bottom:15px;
-}
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border-bright);border-radius:14px;padding:52px 36px;text-align:center;cursor:pointer;transition:all 0.3s;position:relative;background:rgba(201,168,76,0.02);}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--gold);background:rgba(201,168,76,0.06);transform:scale(1.01);}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{font-size:48px;margin-bottom:16px;opacity:0.7;}
+.upload-title{font-family:var(--ff-serif);font-size:22px;font-weight:500;color:var(--cream);margin-bottom:8px;}
+.upload-sub{font-size:11px;color:var(--cream-dim);letter-spacing:0.5px;line-height:1.8;}
+.upload-formats{display:flex;gap:8px;justify-content:center;margin-top:14px;}
+.fmt-badge{font-family:var(--ff-display);font-size:8px;letter-spacing:2px;background:rgba(201,168,76,0.12);border:1px solid var(--border);border-radius:4px;padding:4px 10px;color:var(--gold);}
 
-.grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:16px;
-}
+/* BUTTONS */
+.btn-gold{padding:9px 20px;background:linear-gradient(135deg,var(--brand-mid) 0%,var(--brand-dark) 100%);border:1px solid var(--border-bright);border-radius:8px;color:var(--gold-pale);font-family:var(--ff-display);font-size:9px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;transition:all 0.22s;}
+.btn-gold:hover{border-color:var(--gold);color:var(--gold-light);transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,168,76,0.15);}
+.btn-green{padding:9px 22px;background:linear-gradient(135deg,#5A9040 0%,#3D6B2A 100%);border:1px solid rgba(141,201,107,0.4);border-radius:8px;color:#fff;font-family:var(--ff-display);font-size:9px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;transition:all 0.22s;}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(141,201,107,0.2);}
+.btn-red{padding:9px 20px;background:linear-gradient(135deg,#8B2020 0%,#5C1010 100%);border:1px solid rgba(195,80,80,0.4);border-radius:8px;color:#ffcccc;font-family:var(--ff-display);font-size:9px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;transition:all 0.22s;}
+.btn-red:hover{transform:translateY(-1px);}
+.btn-row{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap;}
 
-.card{
-background:rgba(0,0,0,0.35);
-border-radius:12px;
-border:1px solid rgba(255,255,255,0.08);
-padding:14px;
-display:flex;
-flex-direction:column;
-justify-content:center;
-}
+/* PREVIEW GRID */
+.preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+@media(max-width:1200px){.preview-grid{grid-template-columns:1fr;}}
+.preview-section{background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.preview-head{padding:10px 14px;background:rgba(201,168,76,0.08);border-bottom:1px solid var(--border);font-family:var(--ff-display);font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+.preview-tbl{width:100%;border-collapse:collapse;}
+.preview-tbl thead th{padding:8px 12px;font-family:var(--ff-display);font-size:7.5px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(201,168,76,0.5);text-align:left;font-weight:400;background:rgba(0,0,0,0.15);}
+.preview-tbl thead th.r{text-align:right;}
+.preview-tbl tbody td{padding:8px 12px;font-size:11.5px;font-weight:300;color:var(--cream);border-bottom:1px solid rgba(201,168,76,0.04);}
+.preview-tbl tbody td.r{text-align:right;font-family:var(--ff-serif);font-size:12px;}
+.preview-tbl tbody tr:hover td{background:rgba(201,168,76,0.04);}
+.preview-tbl .total-row td{background:rgba(139,74,31,0.2);color:var(--gold-light);font-weight:500;border-top:1px solid var(--border-bright);}
+.tbl-scroll{max-height:360px;overflow-y:auto;}
+.tbl-scroll::-webkit-scrollbar{width:3px;}
+.tbl-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 
-.team{
-position:relative;
-margin-bottom:8px;
-}
+/* MANUAL TABLE */
+.manual-tbl{width:100%;border-collapse:collapse;}
+.manual-tbl thead th{padding:9px 12px;font-family:var(--ff-display);font-size:7.5px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.55);text-align:left;font-weight:400;background:rgba(0,0,0,0.2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;}
+.manual-tbl thead th.r{text-align:center;}
+.manual-tbl tbody td{padding:5px 8px;border-bottom:1px solid rgba(201,168,76,0.04);}
+.manual-tbl tbody tr:hover td{background:rgba(201,168,76,0.03);}
+.sr-name-cell{font-size:12px;color:var(--cream);padding:6px 12px!important;font-weight:300;}
+.num-input{width:80px;background:rgba(0,0,0,0.3);border:1px solid rgba(201,168,76,0.12);border-radius:5px;padding:5px 8px;color:var(--cream);font-family:var(--ff-serif);font-size:13px;text-align:right;outline:none;transition:border-color 0.2s;}
+.num-input:focus{border-color:var(--gold);}
+.num-input::-webkit-inner-spin-button,.num-input::-webkit-outer-spin-button{opacity:0.5;}
+.period-header{padding:10px 12px;background:rgba(201,168,76,0.06);border-bottom:1px solid var(--border);border-top:1px solid var(--border);}
+.period-header span{font-family:var(--ff-display);font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);}
 
-.teamname{
-font-weight:bold;
-font-size:16px;
-}
+/* STATUS CARDS */
+.status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.status-card{background:var(--glass-mid);border:1px solid var(--border);border-radius:12px;padding:18px 20px;backdrop-filter:blur(12px);animation:fadeUp 0.5s ease both;}
+.status-card:nth-child(1){animation-delay:.05s}
+.status-card:nth-child(2){animation-delay:.10s}
+.status-card:nth-child(3){animation-delay:.15s}
+.status-card:nth-child(4){animation-delay:.20s}
+.sc-label{font-family:var(--ff-display);font-size:7.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.sc-val{font-family:var(--ff-serif);font-size:26px;font-weight:500;color:var(--cream);}
+.sc-sub{font-size:10px;color:var(--cream-dim);margin-top:4px;letter-spacing:0.5px;}
+.sc-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
 
-.stats{
-font-size:13px;
-color:#ccc;
-}
+/* TOAST */
+.toast{position:fixed;bottom:30px;right:30px;z-index:9999;padding:14px 22px 14px 16px;border-radius:10px;font-size:12px;font-weight:400;letter-spacing:0.3px;display:flex;align-items:center;gap:10px;transform:translateY(80px);opacity:0;transition:all 0.4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;backdrop-filter:blur(12px);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:rgba(60,100,40,0.85);border:1px solid rgba(141,201,107,0.4);color:#c5efab;}
+.toast.error{background:rgba(100,30,30,0.85);border:1px solid rgba(195,80,80,0.4);color:#ffaaaa;}
+.toast.info{background:rgba(30,12,3,0.9);border:1px solid var(--border-bright);color:var(--gold-light);}
 
-.progress{
-height:7px;
-background:#444;
-border-radius:5px;
-margin-top:3px;
-overflow:hidden;
-}
+/* INFO BOX */
+.info-box{background:rgba(201,168,76,0.06);border:1px solid var(--border);border-radius:10px;padding:14px 18px;font-size:11px;color:var(--cream-dim);line-height:1.8;letter-spacing:0.3px;margin-bottom:18px;}
+.info-box strong{color:var(--gold);font-weight:400;font-family:var(--ff-display);font-size:9px;letter-spacing:2px;text-transform:uppercase;}
 
-.bar{
-height:7px;
-background:var(--green);
-}
+/* DATE INPUT */
+.date-ctrl{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.date-ctrl label{font-family:var(--ff-display);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+.date-input{background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:7px;padding:7px 12px;color:var(--cream);font-family:var(--ff-sans);font-size:11px;font-weight:300;outline:none;letter-spacing:0.5px;width:130px;}
+.date-input:focus{border-color:var(--gold);}
 
-.vs{
-text-align:center;
-font-size:12px;
-color:var(--gold);
-margin:6px 0;
-}
+/* STORED DATA VIEW */
+.stored-section{background:rgba(0,0,0,0.15);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:16px;}
+.stored-section-title{font-family:var(--ff-display);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
 
-.crown{
-position:absolute;
-right:-8px;
-top:-6px;
-font-size:18px;
-animation:crownGlow 2s infinite alternate;
-}
-
-@keyframes crownGlow{
-from{ text-shadow:0 0 6px gold;}
-to{ text-shadow:0 0 20px gold;}
-}
-
-.top-performer{
-margin-top:18px;
-padding:12px;
-background:rgba(0,0,0,0.35);
-border-radius:10px;
-text-align:center;
-font-size:18px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:12px;
-font-size:14px;
-}
-
-th,td{
-padding:8px;
-border-bottom:1px solid rgba(255,255,255,0.1);
-text-align:center;
-}
-
-th{
-color:var(--gold);
-}
-
-.rank1{
-background:rgba(212,175,55,0.25);
-}
-
-.scroll-btn{
-position:fixed;
-bottom:20px;
-right:25px;
-background:var(--gold);
-border:none;
-padding:12px 20px;
-border-radius:30px;
-font-weight:bold;
-cursor:pointer;
-box-shadow:0 0 12px gold;
-}
-
-.footer{
-text-align:center;
-padding:15px;
-color:#ccc;
-}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.spin{animation:spin 1s linear infinite;display:inline-block;}
 </style>
 </head>
-
 <body>
+<div class="bg-canvas"></div>
+<div class="bg-grain"></div>
+<div class="bg-vignette"></div>
+<div class="toast" id="toast"></div>
 
-<header>
-<h1>FBL – Scheme Day Contest</h1>
-<div class="subtitle">Live Scheme Enrollment Scoreboard</div>
+<div class="shell">
 
-<div class="clock">
-<div id="date"></div>
-<div id="time"></div>
-</div>
-</header>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-emblem">
+      <div class="logo-svg-wrap">
+        <svg width="36" height="36" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 40 L10 44 L50 44 L50 40 Z" fill="#C9A84C" opacity="0.9"/>
+          <path d="M10 40 L14 22 L22 32 L30 14 L38 32 L46 22 L50 40 Z" fill="url(#cg2)" stroke="#C9A84C" stroke-width="0.8"/>
+          <polygon points="30,20 34,26 30,32 26,26" fill="#E8C97A" stroke="#C9A84C" stroke-width="0.5"/>
+          <circle cx="14" cy="21" r="1.5" fill="#E8C97A"/>
+          <circle cx="46" cy="21" r="1.5" fill="#E8C97A"/>
+          <circle cx="30" cy="13" r="2" fill="#F5E4BC"/>
+          <defs><linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C9A84C"/><stop offset="100%" stop-color="#3D1A08"/></linearGradient></defs>
+        </svg>
+      </div>
+    </div>
+    <div class="logo-name">Jewel One</div>
+    <div class="logo-tagline">Admin Panel</div>
+    <div class="logo-rule" style="width:50px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:10px auto 0;"></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-group-label">Dashboard</div>
+    <a class="nav-item" href="digigold_dashboard.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      View Dashboard
+    </a>
+    <div class="nav-group-label">Data Management</div>
+    <a class="nav-item active" href="#">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Upload Data
+    </a>
+    <a class="nav-item" href="#" onclick="switchTab('manual',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Manual Entry
+    </a>
+    <a class="nav-item" href="#" onclick="switchTab('stored',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      Stored Data
+    </a>
+  </nav>
+  <div class="sidebar-foot">
+    <div class="user-row">
+      <div class="user-avatar">RK</div>
+      <div>
+        <div class="user-name">Ragul Kannan</div>
+        <div class="user-emp">E25182 · Admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
 
-<div class="container">
+<!-- MAIN -->
+<main class="main-wrap">
 
-<h2>Showroom Matchups</h2>
-<div class="grid" id="matchups"></div>
+  <!-- Header -->
+  <div class="page-head">
+    <div>
+      <div class="page-eyebrow">DigiGold Platform</div>
+      <div class="page-title">
+        <span class="title-ornament"><span class="orn-line"></span><span class="orn-diamond"></span></span>
+        Data Manager
+      </div>
+      <div class="page-sub" id="admin-sub">Upload & manage DigiGold enrollment data</div>
+    </div>
+    <div class="head-controls">
+      <div id="data-status-badge" style="display:none;align-items:center;gap:8px;background:rgba(60,100,40,0.2);border:1px solid rgba(141,201,107,0.3);border-radius:8px;padding:8px 14px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#8DC96B;display:inline-block;"></span>
+        <span style="font-family:var(--ff-display);font-size:8px;letter-spacing:2px;color:#8DC96B;" id="data-status-text">DATA LOADED</span>
+      </div>
+      <a href="digigold_dashboard.html" class="btn-gold" style="text-decoration:none;">↗ View Dashboard</a>
+    </div>
+  </div>
 
-<div class="top-performer">
-👑 Top Performer :
-<span id="leaderName"></span><br>
-<span id="leaderStats"></span>
-</div>
+  <!-- Status Cards -->
+  <div class="status-grid" id="status-grid">
+    <div class="status-card">
+      <div class="sc-label">Data Source</div>
+      <div class="sc-val" id="sc-source" style="font-size:18px;">—</div>
+      <div class="sc-sub" id="sc-source-sub">No data uploaded yet</div>
+    </div>
+    <div class="status-card">
+      <div class="sc-label">Last Upload</div>
+      <div class="sc-val" id="sc-uploaded" style="font-size:18px;">—</div>
+      <div class="sc-sub" id="sc-uploaded-sub">No uploads recorded</div>
+    </div>
+    <div class="status-card">
+      <div class="sc-label">Monthly Enrollments</div>
+      <div class="sc-val" id="sc-monthly-cnt">—</div>
+      <div class="sc-sub">Total count (month)</div>
+    </div>
+    <div class="status-card">
+      <div class="sc-label">Monthly EMA Value</div>
+      <div class="sc-val" id="sc-monthly-val" style="font-size:20px;">—</div>
+      <div class="sc-sub">Total collected (month)</div>
+    </div>
+  </div>
 
-</div>
+  <!-- Tabs -->
+  <div class="tab-row">
+    <button class="tab-btn active" id="tbtn-upload" onclick="switchTab('upload',this)">⬆ Excel Upload</button>
+    <button class="tab-btn" id="tbtn-manual" onclick="switchTab('manual',this)">✎ Manual Entry</button>
+    <button class="tab-btn" id="tbtn-stored" onclick="switchTab('stored',this)">⬡ Stored Data</button>
+  </div>
 
-<div class="container" id="leaderboardSection">
+  <!-- ═══════════════════════════════
+       TAB 1: EXCEL UPLOAD
+  ═══════════════════════════════ -->
+  <div class="tab-content active" id="tab-upload">
 
-<table>
-<thead>
-<tr>
-<th>Rank</th>
-<th>Showroom</th>
-<th>Target</th>
-<th>Achieved</th>
-<th>%</th>
-</tr>
-</thead>
+    <div class="panel">
+      <div class="panel-top">
+        <span class="panel-title">Upload Excel / CSV File</span>
+        <span class="panel-badge">Supported: .xlsx · .xls · .csv</span>
+      </div>
+      <div class="panel-body">
 
-<tbody id="leaderboard"></tbody>
+        <div class="info-box">
+          <strong>Expected Excel Format</strong><br>
+          The file should have <strong>3 side-by-side sections</strong>:<br>
+          <strong>Columns A–C:</strong> Today · Showroom | Count | Value<br>
+          <strong>Columns E–G:</strong> Current Month · Showroom | Count | Value<br>
+          <strong>Columns I–K:</strong> Current Year · Showroom | Count | Value<br>
+          Row 1 = Section Headers &nbsp;|&nbsp; Row 2 = Column Sub-headers &nbsp;|&nbsp; Rows 3+ = Data
+        </div>
 
-</table>
+        <div class="date-ctrl">
+          <label>Report Date</label>
+          <input class="date-input" type="text" id="upload-date" placeholder="DD-MM-YYYY" maxlength="10">
+        </div>
 
-</div>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="handleFileSelect(event)">
+          <div class="upload-icon">📊</div>
+          <div class="upload-title">Drop your Excel file here</div>
+          <div class="upload-sub">or click to browse your computer<br>Accepts .xlsx, .xls, and .csv formats</div>
+          <div class="upload-formats">
+            <span class="fmt-badge">XLSX</span>
+            <span class="fmt-badge">XLS</span>
+            <span class="fmt-badge">CSV</span>
+          </div>
+        </div>
 
-<button class="scroll-btn" onclick="scrollLeaderboard()">
-View Leaderboard ↓
-</button>
+        <div id="parse-status" style="display:none;margin-top:16px;padding:12px 16px;border-radius:8px;font-size:12px;"></div>
 
-<div class="footer">
-Winning showroom from each matchup qualifies for Phase 2 Contest
+      </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div id="preview-section" style="display:none;">
+      <div class="panel">
+        <div class="panel-top">
+          <span class="panel-title">Data Preview</span>
+          <span class="panel-badge" id="preview-badge">Parsed</span>
+        </div>
+        <div class="panel-body" style="padding-bottom:8px;">
+          <div class="preview-grid" id="preview-grid"></div>
+          <div class="btn-row">
+            <button class="btn-green" onclick="saveToStorage('upload')">✓ Confirm & Save to Dashboard</button>
+            <button class="btn-gold" onclick="clearPreview()">✕ Clear Preview</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════
+       TAB 2: MANUAL ENTRY
+  ═══════════════════════════════ -->
+  <div class="tab-content" id="tab-manual">
+    <div class="panel">
+      <div class="panel-top">
+        <span class="panel-title">Manual Data Entry</span>
+        <span class="panel-badge">All 21 Showrooms</span>
+      </div>
+      <div class="panel-body">
+        <div class="info-box">
+          <strong>Instructions</strong><br>
+          Enter Count and EMA Value for each showroom across all three periods. Leave as 0 if no activity.
+          After filling, click <strong>PREVIEW & SAVE</strong> to update the dashboard.
+        </div>
+        <div class="date-ctrl">
+          <label>Report Date</label>
+          <input class="date-input" type="text" id="manual-date" placeholder="DD-MM-YYYY" maxlength="10">
+        </div>
+      </div>
+
+      <div class="tbl-scroll">
+        <table class="manual-tbl">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width:100px;">Showroom</th>
+              <th colspan="2" style="text-align:center;background:rgba(160,85,42,0.15);border-left:2px solid rgba(201,168,76,0.2);">Today</th>
+              <th colspan="2" style="text-align:center;background:rgba(80,120,60,0.12);border-left:2px solid rgba(201,168,76,0.2);">Current Month</th>
+              <th colspan="2" style="text-align:center;background:rgba(60,80,140,0.12);border-left:2px solid rgba(201,168,76,0.2);">Current Year</th>
+            </tr>
+            <tr>
+              <th class="r" style="background:rgba(160,85,42,0.08);border-left:2px solid rgba(201,168,76,0.2);">Count</th>
+              <th class="r" style="background:rgba(160,85,42,0.08);">Value (₹)</th>
+              <th class="r" style="background:rgba(80,120,60,0.06);border-left:2px solid rgba(201,168,76,0.2);">Count</th>
+              <th class="r" style="background:rgba(80,120,60,0.06);">Value (₹)</th>
+              <th class="r" style="background:rgba(60,80,140,0.06);border-left:2px solid rgba(201,168,76,0.2);">Count</th>
+              <th class="r" style="background:rgba(60,80,140,0.06);">Value (₹)</th>
+            </tr>
+          </thead>
+          <tbody id="manual-tbody"></tbody>
+        </table>
+      </div>
+      <div class="panel-body" style="padding-top:12px;">
+        <div class="btn-row">
+          <button class="btn-gold" onclick="previewManual()">⤴ Preview Data</button>
+          <button class="btn-green" onclick="saveManualDirect()">✓ Save to Dashboard</button>
+          <button class="btn-red" onclick="clearManualForm()">↺ Reset Form</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       TAB 3: STORED DATA
+  ═══════════════════════════════ -->
+  <div class="tab-content" id="tab-stored">
+    <div class="panel">
+      <div class="panel-top">
+        <span class="panel-title">Currently Stored Dashboard Data</span>
+        <span class="panel-badge" id="stored-badge">Checking…</span>
+      </div>
+      <div class="panel-body">
+        <div id="stored-content">
+          <div style="text-align:center;padding:40px;color:var(--cream-dim);font-size:12px;">Loading stored data…</div>
+        </div>
+        <div class="btn-row" id="stored-btn-row" style="display:none;">
+          <button class="btn-red" onclick="clearStoredData()">🗑 Clear All Stored Data</button>
+          <button class="btn-gold" onclick="exportStoredData()">⬇ Export as JSON</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
 </div>
 
 <script>
+/* ════════════════════════════════════
+   CONSTANTS
+════════════════════════════════════ */
+const STORAGE_KEY = 'JEWEL_DIGIGOLD_DATA';
 
-// ALL TEAMS → TARGET FIXED 5,00,000
-const showroomData=[
-{name:"HOSBMR",target:500000,achieved:383000},
-{name:"PYDKMR",target:500000,achieved:210000},
-
-{name:"POLBST",target:500000,achieved:82000},
-{name:"VELASL",target:500000,achieved:120000},
-
-{name:"RMDSVS",target:500000,achieved:155000},
-{name:"TRIBRD",target:500000,achieved:74000},
-
-{name:"SLMSRM",target:500000,achieved:259000},
-{name:"ANRSAE",target:500000,achieved:314000},
+const SHOWROOMS = [
+  { name:'ANRSAE', terr:'Chennai' },
+  { name:'CBEBOT', terr:'Coimbatore' },
+  { name:'CBESRD', terr:'Coimbatore' },
+  { name:'CBEXRD', terr:'Coimbatore' },
+  { name:'ERDRKV', terr:'Chennai' },
+  { name:'FLRMDU', terr:'Coimbatore' },
+  { name:'FLROPS', terr:'Coimbatore' },
+  { name:'FLRRSP', terr:'Coimbatore' },
+  { name:'FLRSLM', terr:'Chennai' },
+  { name:'FLRXRD', terr:'Coimbatore' },
+  { name:'FLRHOS', terr:'Chennai' },
+  { name:'HOSBMR', terr:'Chennai' },
+  { name:'MDUANR', terr:'Coimbatore' },
+  { name:'MDUNTR', terr:'Coimbatore' },
+  { name:'POLBST', terr:'Coimbatore' },
+  { name:'PYDKMR', terr:'Chennai' },
+  { name:'RMDSVS', terr:'Coimbatore' },
+  { name:'SLMSRM', terr:'Chennai' },
+  { name:'TRIBRD', terr:'Chennai' },
+  { name:'UDUDRD', terr:'Coimbatore' },
+  { name:'VELASL', terr:'Chennai' },
 ];
 
-// MATCHUPS FROM IMAGE
-const matchups=[
-["HOSBMR","PYDKMR"],
-["POLBST","VELASL"],
-["RMDSVS","TRIBRD"],
-["SLMSRM","ANRSAE"]
-];
+const fmt  = n => Number(n||0).toLocaleString('en-IN');
+const fmtK = n => n >= 100000 ? (n/100000).toFixed(2)+'L' : n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
 
-function getTeam(name){
-return showroomData.find(t=>t.name===name)
+let parsedData = null; // holds {today, monthly, yearly, date}
+
+/* ════════════════════════════════════
+   INIT
+════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  // Set today's date
+  const now = new Date();
+  const todayStr = `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
+  document.getElementById('upload-date').value = todayStr;
+  document.getElementById('manual-date').value = todayStr;
+
+  buildManualTable();
+  loadStatusCards();
+  setupDragDrop();
+});
+
+function setupDragDrop() {
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) processFile(file);
+  });
 }
 
-function percent(t){
-return ((t.achieved/t.target)*100).toFixed(1)
+/* ════════════════════════════════════
+   TAB SWITCHING
+════════════════════════════════════ */
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const btn = document.getElementById('tbtn-' + tab);
+  if (btn) btn.classList.add('active');
+  if (el && !el.id) el.closest('.tab-btn') && el.classList.add('active');
+  if (tab === 'stored') renderStoredTab();
 }
 
-function money(n){
-return "₹"+n.toLocaleString("en-IN")
+/* ════════════════════════════════════
+   FILE HANDLING
+════════════════════════════════════ */
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (file) processFile(file);
 }
 
-function findLeader(){
-return [...showroomData].sort((a,b)=>
-(b.achieved/b.target)-(a.achieved/a.target)
-)[0]
+function processFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const status = document.getElementById('parse-status');
+  status.style.display = 'block';
+  status.style.background = 'rgba(201,168,76,0.08)';
+  status.style.border = '1px solid var(--border)';
+  status.style.color = 'var(--cream-dim)';
+  status.innerHTML = `<span class="spin">⟳</span> Parsing <strong>${file.name}</strong>…`;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const workbook = XLSX.read(e.target.result, { type: 'array' });
+      const ws = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: 0 });
+      parsedData = parseSheetRows(rows);
+      parsedData.date = document.getElementById('upload-date').value;
+      parsedData.fileName = file.name;
+      parsedData.uploadedAt = new Date().toISOString();
+
+      status.style.background = 'rgba(60,100,40,0.15)';
+      status.style.border = '1px solid rgba(141,201,107,0.3)';
+      status.style.color = '#8DC96B';
+      status.innerHTML = `✓ Parsed successfully — ${parsedData.today.length} showrooms, Today Total: ${parsedData.today.reduce((s,r)=>s+r.cnt,0)} enrollments / ₹${fmt(parsedData.today.reduce((s,r)=>s+r.val,0))}`;
+
+      renderPreview();
+    } catch (err) {
+      status.style.background = 'rgba(100,30,30,0.2)';
+      status.style.border = '1px solid rgba(195,80,80,0.3)';
+      status.style.color = '#ffaaaa';
+      status.innerHTML = `✕ Parse error: ${err.message}. Please check the file format.`;
+    }
+  };
+  reader.readAsArrayBuffer(file);
 }
 
-function renderMatchups(){
+function parseSheetRows(rows) {
+  const today = [], monthly = [], yearly = [];
 
-const leader=findLeader()
-const container=document.getElementById("matchups")
+  // Skip first 2 rows (header rows), parse data rows
+  for (let i = 2; i < rows.length; i++) {
+    const row = rows[i];
+    const sr0 = String(row[0]||'').trim();
+    const sr4 = String(row[4]||'').trim();
+    const sr8 = String(row[8]||'').trim();
 
-matchups.forEach(match=>{
+    if (!sr0 || sr0.toLowerCase() === 'grand total' || sr0.toLowerCase() === 'showroom') continue;
 
-let html=`<div class="card">`
+    today.push({
+      name: sr0.toUpperCase(),
+      cnt:  Math.round(Number(row[1])||0),
+      val:  Math.round(Number(row[2])||0),
+    });
 
-match.forEach((team,index)=>{
+    if (sr4 && sr4.toLowerCase() !== 'showroom') {
+      monthly.push({
+        name: sr4.toUpperCase(),
+        cnt:  Math.round(Number(row[5])||0),
+        val:  Math.round(Number(row[6])||0),
+      });
+    }
 
-const t=getTeam(team)
-const isLeader=(t.name===leader.name)
+    if (sr8 && sr8.toLowerCase() !== 'showroom') {
+      yearly.push({
+        name: sr8.toUpperCase(),
+        cnt:  Math.round(Number(row[9])||0),
+        val:  Math.round(Number(row[10])||0),
+      });
+    }
+  }
 
-html+=`
-<div class="team">
-${isLeader?'<span class="crown">👑</span>':''}
-<div class="teamname">${t.name}</div>
-
-<div class="stats">
-Target: ${money(t.target)}<br>
-Achieved: ${money(t.achieved)}
-</div>
-
-<div class="progress">
-<div class="bar" style="width:${percent(t)}%"></div>
-</div>
-${percent(t)}%
-</div>
-`
-
-if(index<match.length-1)
-html+=`<div class="vs">VS</div>`
-
-})
-
-html+=`</div>`
-container.innerHTML+=html
-
-})
+  // If month/year empty, fall back to today columns for all 3
+  return {
+    today,
+    monthly: monthly.length ? monthly : today.map(r => ({...r})),
+    yearly:  yearly.length  ? yearly  : monthly.length ? monthly.map(r=>({...r})) : today.map(r=>({...r})),
+  };
 }
 
-function leaderboard(){
+/* ════════════════════════════════════
+   PREVIEW
+════════════════════════════════════ */
+function renderPreview() {
+  if (!parsedData) return;
+  document.getElementById('preview-section').style.display = 'block';
+  document.getElementById('preview-badge').textContent = parsedData.fileName || 'Parsed';
 
-let data=[...showroomData]
-data.forEach(t=>t.p=(t.achieved/t.target)*100)
-data.sort((a,b)=>b.p-a.p)
+  const sections = [
+    { label: '📅 Today', rows: parsedData.today },
+    { label: '📆 Current Month', rows: parsedData.monthly },
+    { label: '📅 Current Year', rows: parsedData.yearly },
+  ];
 
-const table=document.getElementById("leaderboard")
-
-data.forEach((t,i)=>{
-
-let row=document.createElement("tr")
-if(i==0)row.classList.add("rank1")
-
-row.innerHTML=`
-<td>${i+1}</td>
-<td>${t.name}</td>
-<td>${money(t.target)}</td>
-<td>${money(t.achieved)}</td>
-<td>${t.p.toFixed(1)}%</td>
-`
-
-table.appendChild(row)
-
-})
-
-const leader=data[0]
-
-document.getElementById("leaderName").innerText=leader.name
-document.getElementById("leaderStats").innerText=
-leader.p.toFixed(1)+"% | "+money(leader.achieved)
+  document.getElementById('preview-grid').innerHTML = sections.map(sec => {
+    const totalCnt = sec.rows.reduce((s,r) => s+r.cnt, 0);
+    const totalVal = sec.rows.reduce((s,r) => s+r.val, 0);
+    return `
+    <div class="preview-section">
+      <div class="preview-head">${sec.label}</div>
+      <div class="tbl-scroll">
+        <table class="preview-tbl">
+          <thead><tr><th>Showroom</th><th class="r">Count</th><th class="r">Value (₹)</th></tr></thead>
+          <tbody>
+            ${sec.rows.map(r => `<tr>
+              <td>${r.name}</td>
+              <td class="r">${fmt(r.cnt)}</td>
+              <td class="r">₹${fmt(r.val)}</td>
+            </tr>`).join('')}
+            <tr class="total-row">
+              <td>Grand Total</td>
+              <td class="r">${fmt(totalCnt)}</td>
+              <td class="r">₹${fmt(totalVal)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function clock(){
-setInterval(()=>{
-let now=new Date()
-document.getElementById("time").innerText=now.toLocaleTimeString()
-document.getElementById("date").innerText=now.toDateString()
-},1000)
+function clearPreview() {
+  parsedData = null;
+  document.getElementById('preview-section').style.display = 'none';
+  document.getElementById('parse-status').style.display = 'none';
+  document.getElementById('fileInput').value = '';
 }
 
-function scrollLeaderboard(){
-document.getElementById("leaderboardSection")
-.scrollIntoView({behavior:"smooth"})
+/* ════════════════════════════════════
+   MANUAL TABLE
+════════════════════════════════════ */
+function buildManualTable() {
+  const tbody = document.getElementById('manual-tbody');
+  tbody.innerHTML = SHOWROOMS.map((sr, i) => `
+    <tr>
+      <td class="sr-name-cell" style="font-size:11px;color:${sr.terr==='Chennai'?'var(--gold-light)':'var(--cream)'};">${sr.name}<br><span style="font-size:9px;color:var(--cream-dim);">${sr.terr}</span></td>
+      <td style="border-left:2px solid rgba(201,168,76,0.1);"><input class="num-input" type="number" min="0" id="td_cnt_${i}" value="0"></td>
+      <td><input class="num-input" type="number" min="0" id="td_val_${i}" value="0" style="width:100px;"></td>
+      <td style="border-left:2px solid rgba(201,168,76,0.1);"><input class="num-input" type="number" min="0" id="mn_cnt_${i}" value="0"></td>
+      <td><input class="num-input" type="number" min="0" id="mn_val_${i}" value="0" style="width:100px;"></td>
+      <td style="border-left:2px solid rgba(201,168,76,0.1);"><input class="num-input" type="number" min="0" id="yr_cnt_${i}" value="0"></td>
+      <td><input class="num-input" type="number" min="0" id="yr_val_${i}" value="0" style="width:100px;"></td>
+    </tr>
+  `).join('');
 }
 
-renderMatchups()
-leaderboard()
-clock()
+function readManualData() {
+  const today = [], monthly = [], yearly = [];
+  SHOWROOMS.forEach((sr, i) => {
+    today.push({ name: sr.name, cnt: +document.getElementById(`td_cnt_${i}`).value||0, val: +document.getElementById(`td_val_${i}`).value||0 });
+    monthly.push({ name: sr.name, cnt: +document.getElementById(`mn_cnt_${i}`).value||0, val: +document.getElementById(`mn_val_${i}`).value||0 });
+    yearly.push({ name: sr.name, cnt: +document.getElementById(`yr_cnt_${i}`).value||0, val: +document.getElementById(`yr_val_${i}`).value||0 });
+  });
+  return { today, monthly, yearly, date: document.getElementById('manual-date').value, uploadedAt: new Date().toISOString(), source: 'manual' };
+}
 
+function previewManual() {
+  parsedData = readManualData();
+  switchTab('upload', document.getElementById('tbtn-upload'));
+  document.getElementById('preview-section').style.display = 'block';
+  document.getElementById('preview-badge').textContent = 'Manual Entry';
+  renderPreview();
+  showToast('Data ready for preview — review & confirm below', 'info');
+}
+
+function saveManualDirect() {
+  parsedData = readManualData();
+  saveToStorage('manual');
+}
+
+function clearManualForm() {
+  SHOWROOMS.forEach((_, i) => {
+    ['td_cnt_','td_val_','mn_cnt_','mn_val_','yr_cnt_','yr_val_'].forEach(prefix => {
+      document.getElementById(prefix + i).value = 0;
+    });
+  });
+  showToast('Form cleared', 'info');
+}
+
+/* ════════════════════════════════════
+   SAVE TO LOCALSTORAGE
+════════════════════════════════════ */
+function saveToStorage(source) {
+  if (!parsedData) { showToast('No data to save — please upload or enter data first', 'error'); return; }
+  try {
+    const payload = { ...parsedData, source: source || 'upload', savedAt: new Date().toISOString() };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    showToast('✓ Data saved! Dashboard will reflect new values on next load.', 'success');
+    loadStatusCards();
+    document.getElementById('data-status-badge').style.display = 'flex';
+  } catch (err) {
+    showToast('Save failed: ' + err.message, 'error');
+  }
+}
+
+/* ════════════════════════════════════
+   STATUS CARDS
+════════════════════════════════════ */
+function loadStatusCards() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      document.getElementById('sc-source').textContent = 'Default';
+      document.getElementById('sc-source-sub').textContent = 'No uploaded data';
+      document.getElementById('sc-uploaded').textContent = '—';
+      document.getElementById('sc-uploaded-sub').textContent = 'No uploads recorded';
+      document.getElementById('sc-monthly-cnt').textContent = '—';
+      document.getElementById('sc-monthly-val').textContent = '—';
+      return;
+    }
+    const d = JSON.parse(raw);
+    const savedAt = d.savedAt ? new Date(d.savedAt) : null;
+    const monthlyCnt = (d.monthly||[]).reduce((s,r) => s+r.cnt, 0);
+    const monthlyVal = (d.monthly||[]).reduce((s,r) => s+r.val, 0);
+
+    document.getElementById('sc-source').textContent = d.source === 'manual' ? 'Manual' : 'Excel';
+    document.getElementById('sc-source-sub').textContent = d.fileName || (d.source === 'manual' ? 'Manual entry' : 'Uploaded file');
+    document.getElementById('sc-uploaded').textContent = savedAt ? savedAt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
+    document.getElementById('sc-uploaded-sub').textContent = savedAt ? savedAt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '';
+    document.getElementById('sc-monthly-cnt').textContent = fmt(monthlyCnt);
+    document.getElementById('sc-monthly-val').textContent = '₹' + fmtK(monthlyVal);
+    document.getElementById('data-status-badge').style.display = 'flex';
+    document.getElementById('data-status-text').textContent = 'DATA ACTIVE';
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════
+   STORED DATA TAB
+════════════════════════════════════ */
+function renderStoredTab() {
+  const badge = document.getElementById('stored-badge');
+  const content = document.getElementById('stored-content');
+  const btnRow = document.getElementById('stored-btn-row');
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      badge.textContent = 'No Data';
+      content.innerHTML = `<div style="text-align:center;padding:50px;color:var(--cream-dim);">
+        <div style="font-size:40px;margin-bottom:16px;opacity:0.4;">📭</div>
+        <div style="font-family:var(--ff-serif);font-size:18px;margin-bottom:8px;">No data stored yet</div>
+        <div style="font-size:11px;">Upload an Excel file or use manual entry to populate the dashboard.</div>
+      </div>`;
+      btnRow.style.display = 'none';
+      return;
+    }
+
+    const d = JSON.parse(raw);
+    badge.textContent = 'Data Found';
+    btnRow.style.display = 'flex';
+
+    const sections = [
+      { key: 'today', label: '📅 Today Data', rows: d.today || [] },
+      { key: 'monthly', label: '📆 Monthly Data', rows: d.monthly || [] },
+      { key: 'yearly', label: '📅 Yearly Data', rows: d.yearly || [] },
+    ];
+
+    content.innerHTML = `
+      <div style="display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap;">
+        <div class="stored-section" style="flex:1;min-width:150px;">
+          <div class="stored-section-title">Upload Info</div>
+          <div style="font-size:11px;color:var(--cream-dim);line-height:2;">
+            Source: <span style="color:var(--cream);">${d.source === 'manual' ? 'Manual Entry' : 'Excel Upload'}</span><br>
+            File: <span style="color:var(--cream);">${d.fileName || '—'}</span><br>
+            Saved: <span style="color:var(--cream);">${d.savedAt ? new Date(d.savedAt).toLocaleString('en-IN') : '—'}</span><br>
+            Date: <span style="color:var(--cream);">${d.date || '—'}</span>
+          </div>
+        </div>
+        ${sections.map(sec => {
+          const tot = sec.rows.reduce((s,r)=>s+r.cnt,0);
+          const val = sec.rows.reduce((s,r)=>s+r.val,0);
+          return `<div class="stored-section" style="flex:1;min-width:150px;">
+            <div class="stored-section-title">${sec.label}</div>
+            <div style="font-size:11px;color:var(--cream-dim);line-height:2;">
+              Showrooms: <span style="color:var(--cream);">${sec.rows.length}</span><br>
+              Total Count: <span style="color:var(--cream);font-family:var(--ff-serif);">${fmt(tot)}</span><br>
+              Total Value: <span style="color:var(--cream);font-family:var(--ff-serif);">₹${fmt(val)}</span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="preview-grid" style="grid-template-columns:repeat(3,1fr);">
+        ${sections.map(sec => `
+        <div class="preview-section">
+          <div class="preview-head">${sec.label}</div>
+          <div class="tbl-scroll" style="max-height:280px;">
+            <table class="preview-tbl">
+              <thead><tr><th>Showroom</th><th class="r">Count</th><th class="r">Value</th></tr></thead>
+              <tbody>
+                ${sec.rows.map(r => `<tr>
+                  <td style="font-size:11px;">${r.name}</td>
+                  <td class="r">${fmt(r.cnt)}</td>
+                  <td class="r">₹${fmt(r.val)}</td>
+                </tr>`).join('')}
+                <tr class="total-row">
+                  <td>Total</td>
+                  <td class="r">${fmt(sec.rows.reduce((s,r)=>s+r.cnt,0))}</td>
+                  <td class="r">₹${fmt(sec.rows.reduce((s,r)=>s+r.val,0))}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>`).join('')}
+      </div>`;
+  } catch(e) {
+    content.innerHTML = `<div style="color:#ffaaaa;padding:20px;">Error reading stored data: ${e.message}</div>`;
+  }
+}
+
+function clearStoredData() {
+  if (!confirm('Clear all stored dashboard data? The dashboard will revert to default values.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  showToast('Stored data cleared. Dashboard will use default values.', 'info');
+  loadStatusCards();
+  renderStoredTab();
+  document.getElementById('data-status-badge').style.display = 'none';
+}
+
+function exportStoredData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) { showToast('No data to export', 'error'); return; }
+  const blob = new Blob([JSON.stringify(JSON.parse(raw), null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'jewel_digigold_data.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Data exported as JSON', 'success');
+}
+
+/* ════════════════════════════════════
+   TOAST
+════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); }, 4000);
+}
 </script>
-
 </body>
 </html>
